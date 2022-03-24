@@ -1,0 +1,109 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "elasticsearch.fullname" . }}
+  namespace: {{ .Values.nameSpace }}
+  labels:
+    app: {{ template "elasticsearch.name" . }}
+    chart: {{ template "elasticsearch.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "elasticsearch.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "elasticsearch.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      initContainers:
+      - name: "change-permission-of-directory"
+        securityContext:
+          runAsUser: 0
+        image: {{ .Values.image.repository }}/{{ .Values.image.ELASTIC_DB }}:{{ .Values.image.ELASTIC_DB_VERSION }}
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/sh"]
+        args: ["-c", "chown -R elasticsearch:root /usr/share/elasticsearch/data"]
+        volumeMounts:
+        - name: elasticdb-data
+          mountPath: /usr/share/elasticsearch/data
+      containers:
+        - name: elasticdb
+          image: {{ .Values.image.repository }}/{{ .Values.image.ELASTIC_DB }}:{{ .Values.image.ELASTIC_DB_VERSION }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: elasticdb-port
+              containerPort: 9200
+              protocol: TCP
+          livenessProbe:
+            exec:
+               command:
+                 - bash
+                 - -c
+                 - 'curl --fail -u elastic:{{ .Values.environment.ELASTIC_DB_PASSWORD }} http://localhost:9200/_cluster/health'
+            initialDelaySeconds: 45
+            timeoutSeconds: 5 
+            periodSeconds: 5           
+          readinessProbe:
+            exec:
+               command:
+                 - bash
+                 - -c
+                 - 'curl --fail -u elastic:{{ .Values.environment.ELASTIC_DB_PASSWORD }} http://localhost:9200/_cluster/health'
+            initialDelaySeconds: 45
+            timeoutSeconds: 5
+            periodSeconds: 5            
+          volumeMounts:
+          - mountPath: /usr/share/elasticsearch/data
+            name: elasticdb-data
+          env:
+            - name: ES_JAVA_OPTS
+              value: "-Xmx512m -Xms256m"
+            - name: ELASTIC_PASSWORD
+              value: '{{ .Values.environment.ELASTIC_DB_PASSWORD }}'
+            - name: discovery.type
+              value: "single-node"                      
+        - name: elasticsearch-client
+          image: {{ .Values.image.repository }}/{{ .Values.image.ELASTIC_CLIENT }}:{{ .Values.image.ELASTIC_CLIENT_VERSION }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: elk-client-port
+              containerPort: 9966
+              protocol: TCP   
+          livenessProbe:
+            httpGet:
+               path: actuator/liveness
+               port: {{ .Values.ports.ELASTIC_CLIENT }}
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+               path: /actuator/liveness
+               port: {{ .Values.ports.ELASTIC_CLIENT }}
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
+            periodSeconds: 5              
+          env:
+            - name: ES_JAVA_OPTS
+              value: "-Xmx512m -Xms256m"
+            - name: ELASTIC_USER
+              value: "elastic"
+            - name: ELASTIC_PASSWORD
+              value: '{{ .Values.environment.ELASTIC_DB_PASSWORD }}'
+            - name: ELASTIC_HOST
+              value: "localhost"
+            - name: ELASTIC_PORT
+              value: "9200"
+            - name: ELK_CLIENT_SRV_REST_PORT
+              value: "9966"         
+
+      volumes:
+        - name: elasticdb-data
+          persistentVolumeClaim:
+            claimName: elasticdb-pvc      
+

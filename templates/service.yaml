@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "elasticsearch.fullname" . }}-service
+  namespace: {{ .Values.nameSpace }}
+  labels:
+    app: {{ template "elasticsearch.name" . }}
+    chart: {{ template "elasticsearch.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9966
+      targetPort: {{ .Values.ports.ELASTIC_CLIENT }}
+      protocol: TCP      
+      name: elasticsearch-client  
+  selector:
+    app: {{ template "elasticsearch.name" . }}
+    release: {{ .Release.Name }}
