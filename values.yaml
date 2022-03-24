@@ -7,12 +7,12 @@ replicaCount: 1
 nameSpace: elasticsearch
 
 image:
-  repository: 265851081780.dkr.ecr.ap-south-1.amazonaws.com/elastic
+  repository: 10.211.1.122/elk
   pullPolicy: Always
   ELASTIC_DB: db
   ELASTIC_DB_VERSION: 7.15.0-v1
-  ELASTIC_CLIENT: client
-  ELASTIC_CLIENT_VERSION: 6.5.0.0-TR04-67
+  ELASTIC_CLIENT: elasticsearch-client
+  ELASTIC_CLIENT_VERSION: 6.5.0.0-TR04-68
 
 ports:
   ELASTIC_CLIENT: 9966
@@ -23,3 +23,4 @@ environment:
 volume:
   StorageClass: nfs-client
   StorageSize: 30Gi
+
