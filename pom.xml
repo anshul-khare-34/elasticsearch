@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- 
+ ############################################################
+ # 
+ #   Copyright (c) 2019 Commscope India. All rights reserved.
+ # 
+ #
+ #  
+ # @version 1.0
+ # @since September 27, 2019
+ # @author Prashant Kumar
+ #
+ ###########################################################
+ -->
+ 
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.2.1.RELEASE</version>
+	</parent>
+	
+	<groupId>org.commscope.tr069adapter.factory</groupId>
+	<artifactId>csfactory</artifactId>
+	<version>1.0.0</version>
+	<name>csfactory</name>
+	<description>Commscope Factory import project for Spring Boot</description>
+
+	<properties>
+		<java.version>1.8</java.version>
+		<docker.image.name>cs-tr069adapter-acs-factorydb</docker.image.name>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+				
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+			<exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
+		</dependency>
+		<dependency>
+    		<groupId>org.springframework.boot</groupId>
+    		<artifactId>spring-boot-starter-log4j2</artifactId>
+		</dependency>
+
+		<dependency>
+		      <groupId>org.mariadb.jdbc</groupId>
+		      <artifactId>mariadb-java-client</artifactId>
+		      <version>2.4.2</version>
+    	</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-activemq</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.activemq</groupId>
+			<artifactId>activemq-broker</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+		<!-- <dependency>
+			<groupId>org.commscope.tr069adapter.commons</groupId>
+			<artifactId>commons</artifactId>
+			<version>1.0.0</version>
+		</dependency> -->
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+						<configuration>
+                            				<mainClass>org.commscope.tr069adapter.factory.FactoryDataAccesorApplication</mainClass>
+							<outputDirectory>${basedir}/target/docker-stage/</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.6</version>
+				<executions>
+					<execution>
+						<id>copy-dockerfile</id>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<!-- here the phase you need -->
+						<phase>validate</phase>
+						<configuration>
+							<outputDirectory>${basedir}/target/docker-stage</outputDirectory>
+							<resources>
+								<resource>
+									<directory>src/main/docker</directory>
+									<includes>
+										<include>Dockerfile</include>
+									</includes>
+									<filtering>true</filtering>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	<profiles>
+		<profile>
+			<id>docker</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>io.fabric8</groupId>
+						<artifactId>docker-maven-plugin</artifactId>
+						<version>0.26.0</version>
+						<inherited>false</inherited>
+						<configuration>
+							<images>
+								<image>
+									<name>${docker.image.name}:${build.version}</name>
+									<build>
+										<cleanup>try</cleanup>
+										<dockerFileDir>${basedir}/target/docker-stage</dockerFileDir>
+										<compression>gzip</compression>
+									</build>
+								</image>
+							</images>
+						</configuration>
+						<executions>
+							<execution>
+								<id>generate-images</id>
+								<phase>package</phase>
+								<goals>
+									<goal>stop</goal>
+									<goal>remove</goal>
+									<goal>build</goal>
+									<goal>save</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+</project>

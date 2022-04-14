@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+ ############################################################
+ # 
+ #   Copyright (c) 2019 Commscope India. All rights reserved.
+ # 
+ #
+ #  
+ # @version 1.0
+ # @since September 27, 2019
+ # @author Prashant Kumar
+ #
+ ###########################################################
+ -->
+ 
+<xs:schema xmlns:tns="http://integration.commscope.com/v1/GEDF.xsd"  targetNamespace="http://integration.commscope.com/v1/GEDF.xsd" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://integration.commscope.com/v1/GEDF.xsd">
+<!-- Date       Author                           Change                                                          Rel           SR# -->
+<!--04/20/2018  RajeevTiwari             0.1      Developed XSD                                                      Generic EDF Import  -->
+<!--05/09/2018  RajeevTiwari             1.0      Incorporated SE comments                                           Generic EDF Import  -->
+<xs:element name="GenericFileEDF" type="tns:EdfFileGenericRequestType">
+		<xs:annotation>
+			<xs:documentation>UEDF - Universal Generic Electronic Data File </xs:documentation>
+		</xs:annotation>
+</xs:element>
+<xs:complexType name="EdfFileGenericRequestType">
+	<xs:sequence>
+			<xs:element name="OrderNumber" type="tns:orderNumberType" minOccurs="1">
+			</xs:element>
+			<xs:element name="DateOfFile" type="tns:ShipDateType" minOccurs="1">
+			</xs:element>
+			<xs:element name="DeviceCount" type="tns:DeviceQuantityType" minOccurs="1">
+			</xs:element>
+			<xs:element name="PurchaserName" type="tns:purchaserNameType" minOccurs="1">
+			</xs:element>
+			<xs:element name="ManufacturerName" type="tns:manufacturerType" minOccurs="1">
+			</xs:element>
+			<xs:element name="SequenceNumber" type="tns:sequenceNumberType" minOccurs="0">
+			</xs:element>
+			<xs:element name="DeviceType" type="tns:deviceIdentityType" minOccurs="1">
+			</xs:element>
+			<xs:element name="edfData" type="tns:edfDataType">
+				<xs:annotation>
+					<xs:documentation>EDF Data Structure</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="edfDataType">
+		<xs:sequence>
+			<xs:element name="edfHeader" type="tns:edfHeaderType">
+				<xs:annotation>
+					<xs:documentation>EDF Header is a collection of data defined here that precedes the detail product information.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="deviceList" type="tns:deviceList" minOccurs="1">
+				<xs:annotation>
+					<xs:documentation>List of the devices</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="edfHeaderType">
+	<xs:sequence>
+		<xs:element name="RefurbishedState" type="tns:refurbishedStateType" minOccurs="1">
+				<xs:annotation>
+					<xs:documentation>NW - for new devices /RW - for refurbished devices.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ProductName" type="tns:ModelNameType" minOccurs="1">
+				<xs:annotation>
+					<xs:documentation>SKU Name -Friendly meaningful name of the product for which a “Product Class” mapping will be created</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ProductClass" type="tns:ModelNameType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Device product class</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+	</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="deviceList">
+	<xs:sequence>
+	<xs:element name="device" type="tns:DeviceInfoType"  minOccurs="1" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Information regarding devices.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+	</xs:sequence>		
+	</xs:complexType>
+	
+	<xs:complexType name="DeviceInfoType">
+	<xs:sequence>
+	<xs:element name="MacId" type="tns:macIdType">
+				<xs:annotation>
+					<xs:documentation>MACID of the device</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SerialNumber" type="tns:serialNumberType">
+				<xs:annotation>
+					<xs:documentation>Serial Number Info</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SWversion" type="tns:SWversionType" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Software version. E.g. 3.0.0.15 </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="UniqueSharedSecret" type="tns:UniqueSharedSecretType">
+				<xs:annotation>
+					<xs:documentation>Password for communication</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="LicenseKey" type="tns:licenseKeyType" minOccurs="0">
+			<xs:annotation>
+					<xs:documentation>License key</xs:documentation>
+				</xs:annotation>
+	</xs:element>
+	</xs:sequence>
+	</xs:complexType>
+		<xs:simpleType name="macIdType">
+		<xs:annotation>
+			<xs:documentation>Unique Device Identity (MACID) provisioned in the factory. This identity shall be unique across all type of devices manufactured by or on behalf of CommScope Small Cells</xs:documentation>
+		</xs:annotation>
+			<xs:restriction base="xs:token">
+			<xs:maxLength value="16"/>
+			<xs:pattern value="[0-9a-fA-F]+"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="serialNumberType">
+	<xs:annotation>
+			<xs:documentation>Serial number of the device</xs:documentation>
+		</xs:annotation>
+			<xs:restriction base="xs:token">
+			<xs:maxLength value="255"/>
+			<xs:pattern value="[0-9a-fA-F-]+[0-9a-zA-Z_-]+[0-9a-fA-F]+"/>
+		</xs:restriction>
+	</xs:simpleType>
+		<xs:simpleType name="SWversionType">
+		<xs:annotation>
+			<xs:documentation>Software version. E.g. 3.0.0.15</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:token">
+			<xs:maxLength value="15"/>
+			<xs:pattern value="[\w .]+"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="UniqueSharedSecretType">
+	<xs:annotation>
+			<xs:documentation>Unique per device. This field shall contain the “HeMS password”</xs:documentation>
+		</xs:annotation>
+			<xs:restriction base="xs:token">
+			<xs:maxLength value="32"/>
+			<xs:pattern value="[\w-]+"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="refurbishedStateType">
+		<xs:annotation>
+			<xs:documentation>Represents type of device. Valid values: 1.	NW - for new devices. 2.	RW - for refurbished device</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:length value="2"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="ModelNameType">
+		<xs:annotation>
+			<xs:documentation>Friendly meaningful name of the product for which a “Product Class” mapping will be created in DMS. </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:token">
+			<xs:minLength value="2"/>
+			<xs:maxLength value="32"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="ProductClassType">
+		<xs:annotation>
+			<xs:documentation>Device Product Class</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:token">
+			<xs:minLength value="2"/>
+			<xs:maxLength value="32"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="DeviceQuantityType">
+		<xs:annotation>
+			<xs:documentation>Total number of device entries in this file.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:maxLength value="6"/>
+			<xs:pattern value="\d+"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="deviceIdentityType">
+		<xs:annotation>
+			<xs:documentation>Type of device this file entries contain. For eg: BC/NGRP/IndoorRP/RuggadizedRP.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:minLength value="2"/>
+			<xs:maxLength value="12"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="licenseKeyType">
+		<xs:restriction base="xs:string">
+			<xs:minLength value="0" />
+		</xs:restriction>		
+	</xs:simpleType>
+	<xs:simpleType name="sequenceNumberType">
+		<xs:annotation>
+			<xs:documentation>Valid range: 0000000000-9999999999. This should be an individual unique ordinal sequence. Always 10 characters, the first 2 char will be used to identify the location where the controller manufactured. </xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:pattern value="\d{10}"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="manufacturerType">
+		<xs:annotation>
+			<xs:documentation>Name of the Manufacturer used in the filename. For Eg: CommScope.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:minLength value="2"/>
+			<xs:maxLength value="20"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="purchaserNameType">
+		<xs:annotation>
+			<xs:documentation>Must be the same as the operator name used in the filename.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:minLength value="2"/>
+			<xs:maxLength value="20"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="ShipDateType">
+		<xs:annotation>
+			<xs:documentation>Date of order shipment. Date must be the same as the date used in the file name.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+         <xs:pattern value="\d{4}\d{2}\d{2}"/>
+		<xs:length value="8"/>
+      </xs:restriction>
+		<!--<xs:restriction base="xs:date"/> -->
+	</xs:simpleType>
+	<xs:simpleType name="orderNumberType">
+		<xs:annotation>
+			<xs:documentation>The operator’s purchase order number. The information contained may be alpha numeric, depending on the manufacturer.</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:string">
+			<xs:minLength value="1"/>
+			<xs:maxLength value="20"/>
+		</xs:restriction>
+	</xs:simpleType>
+</xs:schema>
