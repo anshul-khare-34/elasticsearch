@@ -25,18 +25,3 @@ steps:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'elasticdb'
     publishLocation: 'Container'
-
-- task: HelmInstaller@0
-  inputs:
-    helmVersion: '2.14.1'
-    installKubectl: true
-    - task: HelmDeploy@0
-      inputs:
-        connectionType: 'Kubernetes Service Connection'
-        kubernetesServiceConnection: 'K8_conn'
-        command: 'ls'
-- task: PublishBuildArtifacts@1
-  inputs:
-    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-    ArtifactName: 'drop'
-    publishLocation: 'Container'
