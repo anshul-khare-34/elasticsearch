@@ -36,3 +36,11 @@ steps:
   inputs:
     command: 'build'
     Dockerfile: '**/Dockerfile'
+- task: CmdLine@2
+  inputs:
+    script: |
+      echo Write your commands here
+      
+      echo Hello world
+      
+      docker images
