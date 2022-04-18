@@ -36,6 +36,8 @@ steps:
   inputs:
     command: 'build'
     Dockerfile: '**/Dockerfile'
+    imageName: 'dms/csfactory:$(Build.BuildId)'
+    includeLatestTag: true
 - task: CmdLine@2
   inputs:
     script: |
