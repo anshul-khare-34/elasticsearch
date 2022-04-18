@@ -9,6 +9,8 @@ trigger:
 pool:
   vmImage: ubuntu-latest
 
+variables:
+   imageName: 'dms-csfactory'
 steps:
 - task: Maven@3
   inputs:
@@ -36,8 +38,8 @@ steps:
   inputs:
     command: 'build'
     Dockerfile: '**/Dockerfile'
-    imageName: 'dms/csfactory:$(Build.BuildId)'
-    includeLatestTag: true
+    repository: $(imageName)
+
 - task: CmdLine@2
   inputs:
     script: |
