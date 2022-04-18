@@ -52,7 +52,7 @@ steps:
   inputs:
     repository: '$(imageName)'
     command: 'save'
-    arguments: '--output $(Build.ArtifactStagingDirectory)/${imageName}.tar $(imageName)'
+    arguments: '--output $(Build.ArtifactStagingDirectory)/$(imageName).tar $(imageName)'
     addPipelineData: false
     addBaseImageData: false
 
@@ -61,3 +61,13 @@ steps:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)'
     ArtifactName: 'CSfactory'
     publishLocation: 'Container'
+
+- task: CmdLine@2
+  inputs:
+    script: |
+      echo Write your commands here
+      
+      echo Hello world
+      pwd
+      ls $(Build.ArtifactStagingDirectory)
+      find  . -type f
