@@ -18,9 +18,7 @@ ENV DB_SERVICE=tr069adapter-mariadb
 ENV DB_NAME=dmsdb
 ENV FACTORY_PORT=8089
 
-WORKDIR /opt/CSAdapter/
-
-COPY ./csfactory-1.0.0.jar ./lib/csfactory-1.0.0.jar
+COPY ${basedir}/target/docker-stage/csfactory-1.0.0.jar ./lib/csfactory-1.0.0.jar
 
 EXPOSE ${FACTORY_PORT}
 ENTRYPOINT ["java", "-jar", "./lib/csfactory-1.0.0.jar"]
