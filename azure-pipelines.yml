@@ -48,3 +48,16 @@ steps:
       echo Hello world
       
       docker images
+- task: Docker@2
+  inputs:
+    repository: '$(imageName)'
+    command: 'save'
+    arguments: '--output $(Build.ArtifactStagingDirectory)/${imageName}.tar $(imageName)'
+    addPipelineData: false
+    addBaseImageData: false
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'CSfactory'
+    publishLocation: 'Container'
